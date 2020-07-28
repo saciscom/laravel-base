@@ -1,15 +1,35 @@
+# PHP file
 /node_modules
 /public/hot
+/public/web-ui
+/public/deploy-web-ui
+/public/index.html
+/public/check_repository_change.php
+/public/app/*
+/public/content/*
+/public/i18n/*
+/public/global.*
+/public/main.*
+/public/manifest.webapp
+/public/precache-manifest.*
+/public/robots.txt
+/public/service-worker.js
 /public/storage
-/storage/*.key
+/storage/
 /vendor
-.env
-.env.backup
-.phpunit.result.cache
+/.idea
+/.vscode
+/.vagrant
+/docker/.env
 Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+.env
+.DS_Store
+.phpunit.result.cache
+composer.lock
+bootstrap/cache/*
 
 ##### Windows
 # Windows thumbnail cache files
