@@ -1,10 +1,11 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersTable extends Migration
+class CreateLoginLogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +14,13 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('login_logs', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('authority_id')->default(1);
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('uuid')->nullable()->index();
+            $table->string('email');
             $table->string('password');
-            $table->softDeletes();
-            $table->timestamps();
+            $table->tinyInteger('type')->default(User::LOGIN_SUCCESS);
+            $table->timestamp('created_at');
         });
     }
 
@@ -31,6 +31,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('login_logs');
     }
 }

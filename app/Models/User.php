@@ -1,14 +1,18 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 
+/**
+ * @method static where(string $string, $username)
+ */
 class User extends Authenticatable
 {
-    use Notifiable;
+    use HasApiTokens, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -25,7 +29,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'deleted_at', 'authority_id'
     ];
 
     /**
@@ -36,4 +40,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Login log
+     */
+    const LOGIN_SUCCESS = 0;
+    const LOGIN_FAIL = 1;
+    const LOGOUT = 2;
+    const LOGIN_FAIL_LIMIT_TIMES = 5;
 }
