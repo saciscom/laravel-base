@@ -33,55 +33,53 @@ class AuthenticateController extends Controller
         return $this->checkAuth($credentials);
     }
 
-    private function checkAuth(array $credentials)
+    private function loginFailCount($uuid)
     {
-        $loginLogs = DB::table('login_logs')
-            ->where('uuid', $credentials['uuid'])
+        DB::table('login_logs')
+            ->where('uuid', $uuid)
             ->where('type', User::LOGIN_FAIL)
             ->where('created_at', '>=', date('Y-m-d H:i:s', strtotime("-30 minutes")))
             ->count();
+    }
+
+    private function checkAuth(array $credentials)
+    {
+        $loginFailCount = $this->loginFailCount($credentials['uuid']);
 
         // Block if user login fail 5 times in 30 minutes
-        if ($loginLogs >= User::LOGIN_FAIL_LIMIT_TIMES) {
+        if ($loginFailCount >= User::LOGIN_FAIL_LIMIT_TIMES) {
             throw new AuthenticationException(trans('auth.errors.login-fail-limited'));
         }
 
-        $user = User::where('email', $credentials['email'])->first();
-        $authenticateAble = $user ? true : false;
+        $credentials['created_at'] = date('Y-m-d H:i:s');
 
-        if ($user && !Hash::check($credentials['password'], $user->password)) {
-            // Check for old user login
-            if (md5($credentials['password']) == $user->password) {
-                // Update hash for old user
-                $user->password = Hash::make($credentials['password']);
-                $user->save();
-            } else {
-                $authenticateAble = false;
-            }
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!isset($user)) {
+            $credentials['type'] = User::LOGIN_FAIL;
+            DB::table('login_logs')->insert($credentials);
+            throw new AuthenticationException(trans('auth.errors.user-not-exist'));
+        }
+
+        if (!Hash::check($credentials['password'], $user->password)) {
+            $credentials['type'] = User::LOGIN_FAIL;
+            DB::table('login_logs')->insert($credentials);
+            throw new AuthenticationException(trans('auth.errors.wrong-password'));
         }
 
         $credentials['password'] = Hash::make($credentials['password']);
-        $credentials['created_at'] = date('Y-m-d H:i:s');
-        if ($authenticateAble) {
-            $objToken = $user->createToken(config('token.token.key'));
-            $token = $objToken->accessToken;
-            DB::table('login_logs')->insert($credentials);
-
-            return [
-                'data' => [
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                    'expires_in' => $objToken->token->expires_at->timestamp,
-                    'user_id' => $user->id
-                ]
-            ];
-        }
-
-        // Save login fail to logs DB
-        $credentials['type'] = User::LOGIN_FAIL;
         DB::table('login_logs')->insert($credentials);
 
-        throw new AuthenticationException(trans('auth.errors.login-unauthenticated'));
+        $objToken = $user->createToken(config('token.token.key'));
+        $token = $objToken->accessToken;
+        return [
+            'data' => [
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'expires_in' => $objToken->token->expires_at->timestamp,
+                'user_id' => $user->id
+            ]
+        ];
     }
 
     public function logout(Request $request)
