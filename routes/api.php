@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/login', 'AuthenticateController@login')->name('auth.login');
-Route::post('/register', 'AuthenticateController@register')->name('auth.register');
+Route::post('/register', 'AuthenticateController@store')->name('auth.register');
 
 Route::middleware(['auth.user'])->group(function () {
     Route::get('/me', 'AuthenticateController@me')->name('auth.me');
