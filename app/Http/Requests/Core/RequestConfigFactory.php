@@ -10,7 +10,7 @@ class RequestConfigFactory
 {
     // Request route names
     protected $namingRoute = [
-        'user.store' => UserStoreRequest::class,
+        'auth.register' => UserStoreRequest::class,
     ];
 
     private $routeName;

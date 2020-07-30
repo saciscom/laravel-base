@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Http\Requests\Core\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -113,7 +114,14 @@ class AuthenticateController extends Controller
             ->jsonOut();
     }
 
-    public function register(Request $request)
+    /**
+     * Store object
+     *
+     * @param Request $request request
+     *
+     * @return mixed
+     */
+    public function store(Request $request)
     {
         $authenticate = $this->checkRegister($request->all());
 
