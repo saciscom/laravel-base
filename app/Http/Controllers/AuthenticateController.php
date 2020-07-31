@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Core\Request;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\JsonResponse;
-use App\Http\Requests\Core\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;

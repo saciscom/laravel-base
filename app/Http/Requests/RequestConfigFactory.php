@@ -1,10 +1,9 @@
 <?php
 
 
-namespace App\Http\Requests\Core;
+namespace App\Http\Requests;
 
-
-use App\Http\Requests\UserStoreRequest;
+use App\Http\Requests\Core\BaseRequest;
 
 class RequestConfigFactory
 {

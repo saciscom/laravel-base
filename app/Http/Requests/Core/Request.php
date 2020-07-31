@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Core;
 
+use App\Http\Requests\RequestConfigFactory;
 use Illuminate\Foundation\Http\FormRequest;
 
 class Request extends FormRequest
