@@ -3,6 +3,7 @@
 namespace App\Http\Repositories;
 
 use App\Models\User;
+use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -20,6 +21,14 @@ class UserRepository extends BaseRepository
         return User::class;
     }
 
+    /**
+     * Check Register
+     *
+     * @param array $data
+     * @return array[]
+     * @throws AuthenticationException
+     * @throws Exception
+     */
     public function checkRegister(array $data)
     {
         $name = $data['name'];
@@ -35,10 +44,10 @@ class UserRepository extends BaseRepository
             $user = new User();
             $user['name'] = $name;
             $user['email'] = $email;
-            $user['password'] = Hash::make($password);;
+            $user['password'] = Hash::make($password);
             $user->save();
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollback();
             throw $e;
         }
@@ -46,6 +55,13 @@ class UserRepository extends BaseRepository
         return $this->checkAuth($credentials);
     }
 
+    /**
+     * Check authenticate
+     *
+     * @param array $credentials
+     * @return array[]
+     * @throws AuthenticationException
+     */
     private function checkAuth(array $credentials)
     {
         $loginFailCount = $this->loginFailCount($credentials['uuid']);
@@ -86,6 +102,11 @@ class UserRepository extends BaseRepository
         ];
     }
 
+    /**
+     * Count login fail
+     *
+     * @param $uuid
+     */
     private function loginFailCount($uuid)
     {
         DB::table('login_logs')
@@ -95,6 +116,13 @@ class UserRepository extends BaseRepository
             ->count();
     }
 
+    /**
+     * Authenticate
+     *
+     * @param array $data
+     * @return array[]
+     * @throws AuthenticationException
+     */
     public function authenticate(array $data)
     {
         $credentials = [
@@ -105,15 +133,22 @@ class UserRepository extends BaseRepository
         return $this->checkAuth($credentials);
     }
 
+    /**
+     * Call logout
+     *
+     * @param User $user
+     */
     public function logout(User $user)
     {
         $accessToken = $user->token();
 
-        DB::table('oauth_refresh_tokens')
-            ->where('access_token_id', $accessToken->id)
-            ->update([
-                'revoked' => true
-            ]);
+        if (isset($accessToken->id)) {
+            DB::table('oauth_refresh_tokens')
+                ->where('access_token_id', $accessToken->id)
+                ->update([
+                    'revoked' => true
+                ]);
+        }
         $accessToken->revoke();
         DB::table('login_logs')->insert([
             'email' => $user->email,
